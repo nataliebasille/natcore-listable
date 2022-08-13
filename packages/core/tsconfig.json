@@ -1,7 +1,7 @@
 {
-    "extends": "../../tsconfig.base.json",
-    "compilerOptions": {
-        "isolatedModules": true,
-        "esModuleInterop": true
-      },
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "isolatedModules": true,
+    "esModuleInterop": true
+  },
 }

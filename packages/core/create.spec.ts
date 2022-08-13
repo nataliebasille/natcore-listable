@@ -1,13 +1,13 @@
-import { createListable } from "./createListable";
+import { create } from "./create";
 import * as fc from "fast-check";
 
 const arrayOfIntegers = fc.array(fc.integer());
-describe(createListable.name, () => {
+describe(create.name, () => {
   it("initializes with provided list of items", () => {
     fc.assert(
       fc.property(arrayOfIntegers, (items) => {
-        const listable = createListable({ initialItems: items });
-        expect(listable.items).toEqual(items);
+        const listable = create(items);
+        expect(listable()).toEqual(items);
       })
     );
   });
@@ -16,11 +16,8 @@ describe(createListable.name, () => {
     fc.assert(
       fc.property(arrayOfIntegers, (items) => {
         const search = (item: number) => item > 0;
-        const listable = createListable({
-          initialItems: items,
-          search,
-        });
-        expect(listable.results).toEqual(items.filter(search));
+        const listable = create(items);
+        expect(listable({ search })).toEqual(items.filter(search));
       })
     );
   });
@@ -29,11 +26,10 @@ describe(createListable.name, () => {
     fc.assert(
       fc.property(arrayOfIntegers, (items) => {
         const rank = (item: number) => -item;
-        const listable = createListable({
-          initialItems: items,
-          rank,
-        });
-        expect(listable.results).toEqual(items.sort(rank));
+        const listable = create(items);
+        expect(listable({ rank })).toEqual(
+          items.sort((a, b) => rank(a) - rank(b))
+        );
       })
     );
   });
@@ -43,10 +39,7 @@ describe(createListable.name, () => {
       fc.property(arrayOfIntegers, (items) => {
         const categorize = (item: number) =>
           item >= 0 ? "nonnegative" : "negative";
-        const listable = createListable({
-          initialItems: items,
-          categorize,
-        });
+        const listable = create(items);
         const nonNegativeCategory = {
           name: "nonnegative",
           items: items.filter((item) => item >= 0),
@@ -68,7 +61,7 @@ describe(createListable.name, () => {
           expectedCategories = expectedCategories.reverse();
         }
 
-        expect(listable.categories).toEqual(expectedCategories);
+        expect(listable({ categorize })).toEqual(expectedCategories);
       })
     );
   });
@@ -76,16 +69,7 @@ describe(createListable.name, () => {
   it("categories are sorted based on initial categorizeFn", () => {
     fc.assert(
       fc.property(arrayOfIntegers, (items) => {
-        const listable = createListable({
-          initialItems: items,
-          categorize: (item: number) =>
-            (
-              [
-                ["nonnegative", -1],
-                ["negative", 1],
-              ] as const
-            )[item >= 0 ? 0 : 1],
-        });
+        const listable = create(items);
         const nonNegativeCategory = {
           name: "nonnegative",
           items: items.filter((item) => item >= 0),
@@ -102,27 +86,18 @@ describe(createListable.name, () => {
           ...(hasNegative ? [negativeCategory] : []),
         ];
 
-        expect(listable.categories).toEqual(expectedCategories);
+        expect(
+          listable({
+            categorize: (item: number) =>
+              (
+                [
+                  ["nonnegative", -1],
+                  ["negative", 1],
+                ] as const
+              )[item >= 0 ? 0 : 1],
+          })
+        ).toEqual(expectedCategories);
       })
-    );
-  });
-
-  it("results update when items change", () => {
-    fc.assert(
-      fc.property(
-        arrayOfIntegers,
-        arrayOfIntegers,
-        (initialItems, updateItems) => {
-          const search = (item: number) => item > 0;
-          const rank = (item: number) => -item;
-
-          const listable = createListable({ initialItems, search, rank });
-          const updatedListable = listable.updateItems(updateItems);
-          expect(updatedListable.results).toEqual(
-            updateItems.filter(search).sort((a, b) => rank(a) - rank(b))
-          );
-        }
-      )
     );
   });
 });
