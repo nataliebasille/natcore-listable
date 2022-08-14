@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test:core": "jest packages/core",
-    "test:app": "npm run test:core",
-    "test": "npm run test:app"
+    "test:core": "cd packages/core && npm test",
+    "test:react": "cd packages/react && npm test",
+    "test:all": "npm run test:core && npm run test:react",
+    "test": "npm run test:all"
   },
   "repository": {
     "type": "git",
@@ -31,5 +32,6 @@
     "prettier": "^2.7.1",
     "ts-jest": "^28.0.7",
     "typescript": "^4.7.4"
-  }
+  },
+  "dependencies": {}
 }

@@ -1,0 +1,11 @@
+{
+  "name": "natcore-listable-core",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "Natalie Basille",
+  "license": "ISC"
+}
